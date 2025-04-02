@@ -3,44 +3,58 @@ pragma solidity ^0.8.19;
 
 contract DegreeVerification {
     struct Degree {
-        string studentName;
-        string university;
-        string degree;
+        string firstName;
+        string lastName;
+        string rollNumber;
+        string gender;
+        string course;
+        string email;
+        string year;
         string graduationYear;
+        string gpa;
         bool exists;
     }
 
     mapping(bytes32 => Degree) private degrees;
     address public admin;
 
-    event DegreeAdded(bytes32 indexed degreeHash, string studentName, string university);
+    event DegreeAdded(bytes32 indexed degreeHash, string firstName, string lastName, string rollNumber);
 
     constructor() {
         admin = msg.sender;
     }
 
     function addDegree(
-        string memory _studentName,
-        string memory _university,
-        string memory _degree,
-        string memory _graduationYear
+        string memory _firstName,
+        string memory _lastName,
+        string memory _rollNumber,
+        string memory _gender,
+        string memory _course,
+        string memory _email,
+        string memory _year,
+        string memory _graduationYear,
+        string memory _gpa,
+        bytes32 _hexCode
     ) public {
         require(msg.sender == admin, "Only admin can add degrees");
-        
-        bytes32 degreeHash = keccak256(abi.encodePacked(_studentName, _university, _degree, _graduationYear));
-        require(!degrees[degreeHash].exists, "Degree already exists");
+        require(!degrees[_hexCode].exists, "Degree already exists");
 
-        degrees[degreeHash] = Degree(_studentName, _university, _degree, _graduationYear, true);
-        emit DegreeAdded(degreeHash, _studentName, _university);
+        degrees[_hexCode] = Degree(
+            _firstName,
+            _lastName,
+            _rollNumber,
+            _gender,
+            _course,
+            _email,
+            _year,
+            _graduationYear,
+            _gpa,
+            true
+        );
+        emit DegreeAdded(_hexCode, _firstName, _lastName, _rollNumber);
     }
 
-    function verifyDegree(
-        string memory _studentName,
-        string memory _university,
-        string memory _degree,
-        string memory _graduationYear
-    ) public view returns (bool) {
-        bytes32 degreeHash = keccak256(abi.encodePacked(_studentName, _university, _degree, _graduationYear));
-        return degrees[degreeHash].exists;
+    function verifyDegree(bytes32 _hexCode) public view returns (bool) {
+        return degrees[_hexCode].exists;
     }
 }
